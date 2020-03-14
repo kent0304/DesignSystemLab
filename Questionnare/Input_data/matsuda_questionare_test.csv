@@ -1,0 +1,9 @@
+Column_num,Color_white,Color_black,Icon_A,Icon_B,Icon_C,Layout_thin,Layout_thick,Layout_ratio,Menu_rectangle,Menu_float,Menu_convex,Shape_corner,Shape_round,Shape_chamfer,Header_none,Header_half,Header_full,Char_none,Char_half,Char_full,Total
+1,0,1,1,0,0,0,0,1,0,0,1,0,1,0,0,1,0,1,0,0,4
+1,1,0,1,0,0,0,1,0,0,0,1,1,0,0,0,1,0,0,1,0,14
+1,0,1,1,0,0,0,1,0,0,1,0,1,0,0,1,0,0,0,0,1,11
+2,1,0,1,0,0,0,1,0,1,0,0,1,0,0,1,0,0,1,0,0,13
+2,0,1,1,0,0,1,0,0,0,1,0,0,0,1,0,0,1,0,1,0,3
+3,1,0,1,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,0,1,6
+3,1,0,0,0,1,0,0,1,0,0,1,0,0,1,0,1,0,1,0,0,8
+3,0,1,0,0,1,0,0,1,0,1,0,0,0,1,1,0,0,0,1,0,4

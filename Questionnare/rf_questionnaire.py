@@ -11,7 +11,7 @@ import chainer
 import chainer.functions as F
 
 ## 学習データCSVファイル読み込み
-input_data = pd.read_csv('matsuda_questionare.csv', header=0)
+input_data = pd.read_csv('Input_data/matsuda_questionare.csv', header=0)
 #header=0は省略可。見出しがあるので行番号を0スタート
 xtrain = input_data.loc[:, ["Column_num","Color_white","Color_black", "Icon_A", "Icon_B", "Icon_C", "Layout_thin", "Layout_thick", "Layout_ratio", "Menu_rectangle", "Menu_float", "Menu_convex", "Shape_corner", "Shape_round", "Shape_chamfer", "Header_none", "Header_half", "Header_full", "Char_none", "Char_half", "Char_full"]] #df.loc[:, ['col_1','col_2']]で烈ラベル指定
 ttrain = input_data.loc[:,"Total"]
@@ -19,7 +19,7 @@ x_train = np.array(xtrain,np.float32)
 t_train = np.array(ttrain,np.float32)
 
 ## テスト用データCSV読み込み
-test_data = pd.read_csv('matsuda_questionare_test.csv', header=0)
+test_data = pd.read_csv('Input_data/matsuda_questionare_test.csv', header=0)
 #header=0は省略可。見出しがあるので行番号を0スタート
 xtest = test_data.loc[:, ["Column_num","Color_white","Color_black", "Icon_A", "Icon_B", "Icon_C", "Layout_thin", "Layout_thick", "Layout_ratio", "Menu_rectangle", "Menu_float", "Menu_convex", "Shape_corner", "Shape_round", "Shape_chamfer", "Header_none", "Header_half", "Header_full", "Char_none", "Char_half", "Char_full"]] #df.loc[:, ['col_1','col_2']]で烈ラベル指定
 ttest = test_data.loc[:,"Total"]
@@ -63,7 +63,7 @@ for i in range(len(feature)):
 
 ## 新規設計解導出
 ## 全データCSV読み込み
-all_data = pd.read_csv('ui_input_all.csv', header=0) #header=0は省略可。見出しがあるので行番号を0スタートとする。
+all_data = pd.read_csv('Input_data/ui_input_all.csv', header=0) #header=0は省略可。見出しがあるので行番号を0スタートとする。
 xall = all_data.loc[:, ["Column_num","Color_white","Color_black", "Icon_A", "Icon_B", "Icon_C", "Layout_thin", "Layout_thick", "Layout_ratio", "Menu_rectangle", "Menu_float", "Menu_convex", "Shape_corner", "Shape_round", "Shape_chamfer", "Header_none", "Header_half", "Header_full", "Char_none", "Char_half", "Char_full"]] #df.loc[:, ['col_1','col_2']]で烈ラベル指定
 x_all = np.array(xall,np.float32)
 ## 全データで予測実行
@@ -75,7 +75,7 @@ for ele in predict_all:
     new_predict_all.append(ele)
 ## 結果の行列をCSVファイルに書き出し
 import csv
-with open("rf_questionnare_allresult.csv", "w") as f:
+with open("Output_data/rf_questionnare_allresult.csv", "w") as f:
     # header を設定
     fieldnames = ["Total"]
     writer = csv.DictWriter(f, fieldnames=fieldnames)

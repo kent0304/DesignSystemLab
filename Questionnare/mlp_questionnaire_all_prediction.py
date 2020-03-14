@@ -1,14 +1,17 @@
+### 設計変数とニーズ満足度(アンケート)の関係を学習したモデルを用いて予測を行う
+### 全ての設計解の出力値の算出
+### 回帰ニューラルネットワーク(MLP)
+
 import chainer
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
 import chainer.links as L
 import chainer.functions as F
-
 from chainer import Sequential
 from chainer import serializers
-
+# ------------------------------------------------------------------------------
+# ネットワークの定義
 # モデルの形を学習させた時と同じ形で設定する
 class MLP(chainer.Chain):
 
@@ -26,36 +29,46 @@ class MLP(chainer.Chain):
         h = self.fc3(h2)
         return h
 
-
-
 from chainer import optimizers
 from chainer import training
 
 # ネットワークを作成
 loaded_net = MLP()
 
-# 学習済みモデルの読み込み
+# Output_netというフォルダに保存された学習済みモデルの読み込み
 chainer.serializers.load_npz('Output_net/mlp_questionnaire_matsuda.net', loaded_net)
 
-df = pd.read_csv('matsuda_questionare_test.csv', header=0)
+df = pd.read_csv('Input_data/ui_input_all.csv', header=0)
 x = df.loc[:, ["Column_num","Color_white","Color_black", "Icon_A", "Icon_B", "Icon_C", "Layout_thin", "Layout_thick", "Layout_ratio", "Menu_rectangle", "Menu_float", "Menu_convex", "Shape_corner", "Shape_round", "Shape_chamfer", "Header_none", "Header_half", "Header_full", "Char_none", "Char_half", "Char_full"]]
 x = np.array(x,np.float32)
 
-
-
 with chainer.using_config('train', False), chainer.using_config('enable_backprop', False):
     y = loaded_net(x)
-# print(y)
-#print(y[0,0])
-score_list = []
-for i in range(8):
+
+import csv
+
+count = 0
+total_score = []
+like = []
+
+for i in range(4374): # 4374全て通り
     value = float(y[i,0].data)
     value = round(value,2)
-    score_list.append(value)
+    like.append(value)
+    value = [value]
+    total_score.append(value)
 
-print(score_list)
+# print(max(total_score)) # 最大値出力
+# print(min(total_score)) # 最小値出力
 
-# x = np.array([4.07, 6.16, 10.42, 7.08, 5.92, 1.78, 6.16, 7.37]).astype(np.float32)
-# y = np.array([9,3,5,4,7,2,6,5]).astype(np.float32)
-# loss = F.mean_absolute_error(x,y)
-# print(loss)
+
+# 結果の行列をCSVファイルに書き出し
+with open("Output_data/mlp_questionnare_allresult.csv", "w") as f:
+    # header を設定
+    fieldnames = ["Total"]
+    writer = csv.DictWriter(f, fieldnames=fieldnames)
+    writer.writeheader()
+
+    # データの書き込み
+    writer = csv.writer(f)
+    writer.writerows(total_score)

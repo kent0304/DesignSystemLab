@@ -6,32 +6,42 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-input_data = pd.read_csv('matsuda_questionare.csv', header=0) #header=0は省略可。見出しがあるので行番号を0スタートとする。
+# ------------------------------------------------------------------------------
+#データの用意やiteratorの設定
+# csvデータをinput_dataに格納する
+# Input_dataというフォルダに入れたcsvから読み取る
+input_data = pd.read_csv('Input_data/matsuda_questionare.csv', header=0) #header=0は省略可。見出しがあるので行番号を0スタートとする
+# loc関数を使ってカラムのタイトル指定
+# xに設計変数を格納
 x = input_data.loc[:, ["Column_num","Color_white","Color_black", "Icon_A", "Icon_B", "Icon_C", "Layout_thin", "Layout_thick", "Layout_ratio", "Menu_rectangle", "Menu_float", "Menu_convex", "Shape_corner", "Shape_round", "Shape_chamfer", "Header_none", "Header_half", "Header_full", "Char_none", "Char_half", "Char_full"]] #df.loc[:, ['col_1','col_2']]で烈ラベル指定
+# tに15点満点のアンケート結果(Total)を格納
 t = input_data.loc[:,["Total"]]
 
 #Chainerがデフォルトで用いるfloat32型に変換
 x = np.array(x,np.float32)
 t = np.array(t,np.float32) # 分類型のときはint, 回帰型のときはfloat
 
+# TupleDatasetを使ってxとtをセットにする
 from chainer.datasets import TupleDataset
-dataset = TupleDataset(x,t) #TupleDatasetはchainer.datasetsというモジュール内のクラス。
+dataset = TupleDataset(x,t)
 
+# datasetを任意の割合でtrain(学習用データ)とvalid(検証用データ)に分割する
 from chainer.datasets import split_dataset_random
 train, valid = split_dataset_random(dataset, int(len(dataset) * 0.8), seed=0) # 抽出するデータは固定
 
+# 用意したデータをどう抽出し，どうグループ(バッチ)わけするか設定する
 from chainer import iterators
 batchsize = 128
 train_iter = iterators.SerialIterator(train, batchsize, shuffle=True, repeat=True)
 valid_iter = iterators.SerialIterator(valid, batchsize, shuffle=True, repeat=True)
-# 何周も何周もデータを繰り返し読み出す必要がある場合はrepeat引数をTrue
+# 何周も何周も全データを繰り返し読み出す必要がある場合はrepeat引数をTrue
 # 1周が終わったらそれ以上データを取り出したくない場合はこれをFalse
 # デフォルトではTrueなので本当は書かなくてもいい
 
-
+# ------------------------------------------------------------------------------
+# ネットワークの定義と最適化手法の選択
 import chainer.links as L
 import chainer.functions as F
-
 # ネットワークの定義
 class MLP(chainer.Chain):
 
@@ -53,19 +63,20 @@ net = MLP() #インスタンス化
 
 from chainer import optimizers
 from chainer.optimizer_hooks import WeightDecay
-
 # 最適化手法の選択
-optimizer = optimizers.MomentumSGD(lr=0.001, momentum=0.9)  # 学習率を 0.01 に設定
+optimizer = optimizers.MomentumSGD(lr=0.001, momentum=0.9)  # 学習率を 0.001 に設定
 optimizer.setup(net)
 
 for param in net.params():
     if param.name != 'b':  # バイアス以外だったら
         param.update_rule.add_hook(WeightDecay(0.0001))  # 重み減衰を適用
 
-# エポック数
+# ------------------------------------------------------------------------------
+# 学習における設定
+# エポック数(↓変更可能)
 n_epoch = 401
 
-# ログ
+# 表示するログの設定
 results_train, results_valid = {}, {}
 results_train['loss'], results_train['accuracy'] = [], []
 results_valid['loss'], results_valid['accuracy'] = [], []
@@ -75,6 +86,8 @@ count = 1
 train_batch = train_iter.next()
 x_train, t_train = chainer.dataset.concat_examples(train_batch)
 
+# ------------------------------------------------------------------------------
+# 実際の学習開始
 for epoch in range(n_epoch):
 
     while True:
@@ -86,6 +99,8 @@ for epoch in range(n_epoch):
 
         # 予測値と目的関数の計算
         y_train = net(x_train)
+
+        # 目的関数(誤差関数，損失関数)の設定
         loss_train = F.mean_absolute_error(y_train, t_train)
 
         # 勾配の初期化と勾配の計算
@@ -116,9 +131,9 @@ for epoch in range(n_epoch):
             results_valid['loss'].append(loss_valid.array)
 
             break
-
-
-#目的関数(損失)の可視化
+# ------------------------------------------------------------------------------
+# 学習状況(誤差関数の遷移)の確認
+# 目的関数(誤差関数，損失関数)の可視化
 # 損失 (loss)
 plt.plot(results_train['loss'], label='train')  # label で凡例の設定
 plt.plot(results_valid['loss'], label='valid')  # label で凡例の設定
@@ -129,5 +144,6 @@ plt.legend()  # 凡例の表示
 
 plt.show()
 
-# ネットワークの保存
-chainer.serializers.save_npz('mlp_questionnaire_matsuda.net', net)
+# 学習したネットワークの保存
+# Output_netというフォルダに保存
+chainer.serializers.save_npz('Output_net/mlp_questionnaire_matsuda.net', net)
