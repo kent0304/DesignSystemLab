@@ -4,3 +4,11 @@
 
 EEGは出力値に脳波データ．Questionnareはアンケート結果に基づく値を出力値としています．
 
+## Questionnare
+ここではQuestionnareのフォルダについて説明します．
+
+# NNの学習(mlp_questionnare_train.py)
+
+# NNを用いた推測(mlp_questionnare_all_prediction.py)
+
+
